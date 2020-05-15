@@ -73,21 +73,16 @@ class MCRequest():
             if '--nThreads' in line and 'cmsDriver.py' in line:
                 ans=self.GetOptionArgument(line,'--nThreads')
         self.nThreads=ans
+        if ans=='':self.nThreads=1
 
-    def ExportSetup(self):
-        f=open(self.alias+'_setup.sh','w')
-        f.write('cd ${_CONDOR_SCRATCH_DIR}\n')
-        for line in self.setup:
-            if 'slc6' in line:line=line.replace('slc6','slc7')
-            f.write(line)
-        f.close()
-        os.system('chmod 777 '+self.alias+'_setup.sh')
     def ExportExe(self):
         f=open(self.alias+'_exe.sh','w')
-        f.write('cd ${_CONDOR_SCRATCH_DIR}\n')
+        
         for line in self.setup+self.exe:
-            if 'slc6' in line:line=line.replace('slc6','slc7')
+            #if 'slc6' in line:line=line.replace('slc6','slc7')
             f.write(line)
+            if '#!/bin/bash' in line: 
+                f.write('cd ${_CONDOR_SCRATCH_DIR}\n')
         f.close()
         os.system('chmod 777 '+self.alias+'_exe.sh')
     def SetJds(self):
@@ -100,6 +95,10 @@ log = {3}
 request_cpus = {4}
 accounting_group=group_cms
 JobBatchName = {5}
+requirements = ( HasSingularity == true )
++SingularityImage = "/cvmfs/singularity.opensciencegrid.org/opensciencegrid/osgvo-el6:latest"
++SingularityBind = "/cvmfs, /cms, /share"
+
 queue
 """.format(self.alias+'_exe.sh', self.alias+'.out', self.alias+'.err', self.alias+'.log', self.nThreads, 'RequestTest_'+self.alias)
         self.jds = self.jds.split('\n')
@@ -126,7 +125,7 @@ queue
         maindir=os.getcwd()
         os.system('mkdir -p '+self.workdir)
         os.chdir(self.workdir)
-        self.ExportSetup()
+        #self.ExportSetup()
         self.ExportExe()
         self.ExportJds()
         os.chdir(maindir)
