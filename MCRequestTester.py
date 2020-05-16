@@ -40,7 +40,9 @@ class MCRequest():
         newlines=[]
         for line in lines:
             if '-n ' in line and 'cmsDriver.py' in line:
+
                 oldNEVENT=self.GetOptionArgument(line,'-n')
+                print "!!!Chane Nevent",oldNEVENT,NEVENT
                 line=line.replace('-n '+oldNEVENT,'-n '+str(NEVENT))
             newlines.append(line)
         self.setup=newlines
