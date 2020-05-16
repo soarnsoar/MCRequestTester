@@ -22,6 +22,7 @@ class MCRequest():
         f=open(self.prepid,'r')
         self.setup=f.readlines()
         f.close()
+        #os.system('mv '+self.prepid+' '+self.prepid+'_source.sh')
         os.system('rm '+self.prepid)
         self.GetNCPU()
 
@@ -70,8 +71,10 @@ class MCRequest():
         lines=self.setup
         ans=''
         for line in lines:
+            #print line
             if '--nThreads' in line and 'cmsDriver.py' in line:
                 ans=self.GetOptionArgument(line,'--nThreads')
+                #print 'ans=',ans
         self.nThreads=ans
         if ans=='':self.nThreads=1
 
